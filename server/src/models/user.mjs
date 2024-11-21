@@ -1,7 +1,7 @@
 const user = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         nome: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
         },
         idade: {
             type: DataTypes.INTEGER
