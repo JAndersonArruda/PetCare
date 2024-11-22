@@ -1,13 +1,10 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../config/sequelize.mjs'
-import userModel from './user.mjs';
+import { user as userModel } from './user.mjs';
+import petModel from './pet.mjs';
 
 const user = userModel(sequelize, DataTypes);
-
-const db = {
-    user,
-    sequelize
-};
+const pet = petModel(sequelize, DataTypes);
 
 
-export default db;
+export {user, pet, sequelize};
