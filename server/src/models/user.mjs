@@ -1,4 +1,4 @@
-const user = (sequelize, DataTypes) => {
+export const user = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         nome: {
             type: DataTypes.STRING,
@@ -11,7 +11,4 @@ const user = (sequelize, DataTypes) => {
     });
 
     return User;
-}
-
-
-export default user;
+};
