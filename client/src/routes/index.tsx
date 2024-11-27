@@ -1,13 +1,15 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 
+import SignIn from "../pages/SignIn/SignIn"
+import SignUp from "../pages/SignUp/SignUp"
 
-const AppRoutes = () =>{
+const AppRoutes = () => {
   return (
     <Routes>
-        <Route path="/" element={<Navigate to={"/account/login"} />} />;
+        <Route index element={<Navigate to={"/account/login"} />} />
 
-        <Route path="/account/login" element={''} />
-        <Route path="/account/register" element={''} />
+        <Route path="/account/login" element={<SignIn />} />
+        <Route path="/account/register" element={<SignUp />} />
         <Route path="" element={''} />
         <Route path="" element={''} />
         <Route path="" element={''} />
