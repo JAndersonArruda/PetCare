@@ -1,4 +1,4 @@
-export const user = (sequelize, DataTypes) => {
+const user = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         email: {
             type: DataTypes.STRING,
@@ -9,7 +9,7 @@ export const user = (sequelize, DataTypes) => {
             },
         },
         nome: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         senha: {
@@ -17,27 +17,27 @@ export const user = (sequelize, DataTypes) => {
             allowNull: false,
         },
         telefone: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(15),
             allowNull: false,
         },
         uf: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(50),
             allowNull: false,
         },
         cidade: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         rua: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         bairro: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         num: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: false,
         },
         tipo: {
@@ -49,23 +49,7 @@ export const user = (sequelize, DataTypes) => {
         tableName: 'users'
     });
 
-    Usuario.associate = (models) => {
-        Usuario.hasMany(models.Pet, { foreignKey: 'idDono' });
-
-        Usuario.hasMany(models.Avaliacao, { foreignKey: 'idCliente' });
-    
-        Usuario.belongsToMany(models.Servico, { 
-          through: 'AgendaServico',
-          foreignKey: 'emailCliente'
-        });
-    
-        // Avaliações de serviços feitas pelos clientes
-        Usuario.belongsToMany(models.Servico, {
-          through: 'AvaliacoesServico',
-          foreignKey: 'idCliente'
-        });
-      };
-    
-
     return User;
 };
+
+export default user;
