@@ -6,7 +6,7 @@ const pet = (sequelize, DataTypes) => {
             autoIncrement: true,
         },
         nome: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(100),
             allowNull: false,
             validate: {
                 notEmpty: true,
@@ -34,12 +34,14 @@ const pet = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
+        caracteristicas: {
+            type: DataTypes.STRING,
+            allowNull: true
+        }
     },
     {
         tableName: 'pets',
-        timestamps: true,
     })
 };
-
 
 export default pet;

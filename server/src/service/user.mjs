@@ -1,5 +1,3 @@
-
-
 class User {
     constructor(userModel) {
         this.user = userModel;
@@ -10,7 +8,7 @@ class User {
         return users;
     }
 
-    async creatUser(userDTO) {
+    async createUser(userDTO) {
         await this.user.create(userDTO);        
     }
 }
