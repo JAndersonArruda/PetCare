@@ -2,7 +2,12 @@ import { Router } from "express";
 import { user } from "../models/index.mjs";
 import User from '../service/user.mjs';
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
 
+
+dotenv.config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const router = Router();
 const userService = new User(user);
@@ -68,7 +73,7 @@ router.post("/api/login", async (request, response) => {
     }
 
     try {
-        const usuario = await User.findOne({ where: { email } });
+        const usuario = await user.findOne({ where: { email } });
 
         if (!usuario) {
             return response.status(404).json({ message: "Usuário não encontrado." });
