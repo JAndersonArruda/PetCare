@@ -15,4 +15,16 @@ const clinica = clinicaModel(sequelize, DataTypes);
 const avaliacao = avaliacaoModel(sequelize, DataTypes);
 
 
+user.belongsToMany(pet, { 
+    through: 'DonoPet', 
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+});
+pet.belongsToMany(user, { 
+    through: 'DonoPet', 
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+ });
+
+
 export {user, pet, vacina, service, clinica, avaliacao, sequelize};

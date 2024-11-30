@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { user } from "../models/index.mjs";
 import User from '../service/user.mjs';
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
+import authenticateToken from "../utils/middlewares/authenticateToken.mjs";
+import Authentication from "../service/Authentication.mjs";
 
 
 dotenv.config();
@@ -11,94 +11,147 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 const router = Router();
 const userService = new User(user);
+const authenticationService = new Authentication(user, SECRET_KEY)
 
 router.get("/api/users", async (request, response) => {
-    try {
-        const users = await userService.get()
-        response.status(200).json(users);
-    } catch (error) {
-        console.error(error);
-        response.status(500).send("Erro ao buscar usuários.");
+    const result = await userService.get();
+
+    if (result.error) {
+        return response.status(result.status).json({
+            message: result.message,
+            error: result.error,
+        });
     }
+
+    return response.status(result.status).json({
+        message: result.message,
+        data: result.data,
+    });
 });
 
 router.post("/api/users", async (request, response) => {
-    const { email, nome, senha, telefone, uf, cidade, rua, bairro, num, tipo } = request.body;
+    const result = await userService.createUser(request.body);
 
-    if (!email || !nome || !senha || !telefone || !uf || !cidade || !rua || !bairro || !num || !tipo) {
-        return response.status(400).json({ 
-            message: "Todos os campos obrigatórios devem ser preenchidos." 
-        });
-    }
-
-    if (!["Cliente", "Profissional"].includes(tipo)) {
-        return response.status(400).json({ 
-            message: "O campo 'tipo' deve ser 'Cliente' ou 'Profissional'." 
-        });
-    }
-
-    try {
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(senha, salt);
-        const novoUsuario = await userService.createUser({ email, nome, senha: hashedPassword, telefone, uf, cidade, rua, bairro, num, tipo,});
-
-        return response.status(201).json({
-            message: "Usuário criado com sucesso!",
-            data: novoUsuario,
-        });
-    } catch (error) {
-        console.error("Erro ao criar usuário:", error);
-
-        if (error.name === "SequelizeValidationError") {
-            return response.status(400).json({ 
-                message: "Erro de validação.", 
-                errors: error.errors.map(err => err.message) 
-            });
-        }
-
+    if (!result) {
         return response.status(500).json({
-            message: "Erro interno do servidor ao criar usuário.",
-            error: error.message,
+            message: "Erro interno: resultado indefinido.",
         });
     }
+
+    return response.status(result.status).json({
+        message: result.message,
+        data: result.data,
+        errors: result.errors,
+    });
 });
 
 router.post("/api/login", async (request, response) => {
     const { email, senha } = request.body;
 
-    if (!email || !senha) {
+    const result = await authenticationService.login(email, senha);
+
+    return response.status(result.status).json({
+        message: result.message,
+        token: result.token,
+    });
+});
+
+router.delete('/api/users/:id', async(request, response) => {
+    const { id } = request.params;
+
+    const result = await userService.deleteUserById(id);
+
+    if (result.error) {
+        return response.status(result.status).json({ message: result.error });
+    }
+
+    return response.status(result.status).json({ message: result.message });
+})
+
+router.delete('/api/users', authenticateToken, async(request, response) => {
+    const userEmail = request.user.email;
+
+    const result = await userService.deleteUserByEmail(userEmail);
+
+    return response.status(result.status).json({ message: result.message });
+})
+
+router.put('/api/users/profile', authenticateToken, async(request, response) => {
+    const email = request.user.email;
+    const {
+        nome,
+        telefone,
+        uf,
+        cidade,
+        rua,
+        bairro,
+        num,
+    } = request.body;
+
+    if (!nome || !telefone || !uf || !cidade || !rua || !bairro || !num) {
+        return response.status(400).json({ message: "Todos os campos obrigatórios devem ser preenchidos." });
+    }
+
+    try {
+        const result = await userService.updateUser(userEmail, {
+            nome,
+            telefone,
+            uf,
+            cidade,
+            rua,
+            bairro,
+            num,
+        });
+
+        if (result.error) {
+            return response.status(result.status).json({
+                message: result.message,
+                error: result.error,
+            });
+        }
+
+        return response.status(result.status).json({
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        console.error("Erro ao atualizar perfil:", error);
+        return response.status(500).json({
+            message: "Erro interno do servidor ao atualizar perfil.",
+            error: error.message,
+        });
+    }
+})
+
+router.patch("/api/users/profile", authenticateToken, async (request, response) => {
+    const userEmail = request.user.email;
+    const updates = request.body;
+
+    if (Object.keys(updates).length === 0) {
         return response.status(400).json({
-            message: "Email e senha são obrigatórios."
+            message: "Nenhum campo foi enviado para atualização.",
         });
     }
 
     try {
-        const usuario = await user.findOne({ where: { email } });
+        const result = await userService.patchUser(userEmail, updates);
+        console.log("Resultado do patchUser:", result);
 
-        if (!usuario) {
-            return response.status(404).json({ message: "Usuário não encontrado." });
+        if (result.error) {
+            return response.status(result.status).json({
+                message: result.message,
+                error: result.error,
+            });
         }
 
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
-
-        if (!senhaValida) {
-            return response.status(401).json({ message: "Senha incorreta." });
-        }
-
-        const token = jwt.sign(
-            { email: usuario.email, tipo: usuario.tipo },
-            SECRET_KEY,
-            { expiresIn: "1h" }
-        );
-
-        return response.status(200).json({
-            message: "Login realizado com sucesso.",
-            token,
+        return response.status(result.status).json({
+            message: result.message,
+            data: result.data,
         });
     } catch (error) {
-        console.error("Erro ao realizar login:", error);
+        console.error("Erro ao atualizar perfil:", error);
         return response.status(500).json({
-            message: "Erro interno do servidor ao realizar login.",
+            message: "Erro interno do servidor ao atualizar perfil.",
             error: error.message,
         });
     }
