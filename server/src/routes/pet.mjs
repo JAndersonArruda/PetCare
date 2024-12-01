@@ -23,22 +23,90 @@ router.post('/api/pets', authenticateToken, async(request, response) => {
     });
 });
 
-/*
-router.get('/api/pets', (request, response) => {
-    petController.getAllPets(req, res)
+router.get('/api/pets', async (request, response) => {
+    const pets = await petService.getAllPets();
+
+    if (pets.error) {
+        return response.status(pets.status).json({
+            message: pets.message,
+            error: pets.error,
+        });
+    }
+
+    return response.status(pets.status).json({
+        message: pets.message,
+        data: pets.data,
+    });
 });
 
-router.get('/api/pets/:id', (request, response) => {
-    petController.getPetById(req, res)
+router.get('/api/pets/:id', async (request, response) => {
+    const { id } = request.params;
+    const pet = await petService.getPetById(id);
+
+    if (pet.error || !pet) {
+        return response.status(pet.status).send(pet.error)
+    }
+
+    return response.send(pet);
 });
 
-router.put('/api/pets/:id', (request, response) => {
-    petController.updatePet(req, res)
+router.put('/api/pets/:id', authenticateToken, async (request, response) => {
+    const { id } = request.params;
+    const {
+        nome,
+        raca,
+        idade,
+        porte,
+        foto,
+        caracteristicas,
+    } = request.body;
+
+    if (!nome || !porte) {
+        return response.status(400).json({ 
+            message: "Nome e porte são obrigatórios." 
+        });
+    }
+
+    try {
+        const updates = { nome, raca, idade, porte, foto, caracteristicas };
+
+        const pet = await petService.updatePet(id, request.user, updates);
+
+        const result = {
+            message: pet.message,
+            data: pet.data,
+        };
+
+        if (pet.errors) {
+            result.errors = pet.errors;
+        }
+
+        return response.status(pet.status).json(result);
+    } catch (error) {
+        console.error("Erro ao atualizar pet:", error);
+        return response.status(500).json({
+            message: "Erro interno ao atualizar o pet.",
+            error: error.message,
+        });
+    }
 });
 
-router.delete('/api/pets/:id', (request, response) => {
-    petController.deletePet(req, res)
+router.delete('/api/pets/:id', authenticateToken, async (request, response) => {
+    try {
+        const petId = request.params.id;
+        const userAuth = request.user;
+
+        const result = await petService.deletePet(petId, userAuth);
+
+        return response.status(result.status).json({
+            message: result.message,
+            ...(result.data && { data: result.data })
+        });
+    } catch (error) {
+        console.error('Erro ao deletar pet:', error);
+        return response.status(500).json({ message: 'Erro ao deletar pet.', error: error.message });
+    }
 });
-*/
+
 
 export default router;
