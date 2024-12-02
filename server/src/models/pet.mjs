@@ -1,9 +1,9 @@
 const pet = (sequelize, DataTypes) => {
     const Pet = sequelize.define('Pet', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
-            autoIncrement: true,
         },
         nome: {
             type: DataTypes.STRING(100),
@@ -42,6 +42,8 @@ const pet = (sequelize, DataTypes) => {
     {
         tableName: 'pets',
     })
+
+    return Pet;
 };
 
 export default pet;
