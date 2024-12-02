@@ -56,6 +56,21 @@ router.post("/api/login", async (request, response) => {
     });
 });
 
+router.delete('/api/users/', authenticateToken, async (request, response) => {
+    try {
+        const userAuth = request.user;
+
+        const result = await userService.deleteUser(userAuth);
+
+        return response.status(result.status).json({
+            message: result.message
+        });
+    } catch (error) {
+        console.error('Erro ao deletar pet:', error);
+        return response.status(500).json({ message: 'Erro ao deletar pet.', error: error.message });
+    }
+});
+
 router.delete('/api/users/:id', async(request, response) => {
     const { id } = request.params;
 

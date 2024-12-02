@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { pet } from "../models/index.mjs";
+import { pet, user } from "../models/index.mjs";
 import Pet from "../service/pet.mjs";
+import User from "../service/user.mjs";
 import authenticateToken from "../utils/middlewares/authenticateToken.mjs";
 
 const router = Router()
 const petService = new Pet(pet);
+const userService = new User(user);
 
 router.post('/api/pets', authenticateToken, async(request, response) => {
-    console.log(request.user);
-    const resultPet = await petService.createPet(request.body, request.user);
+    const user = await userService.getUserByEmail(request.user.email);
+    const resultPet = await petService.createPet(request.body, user);
     
     if (!resultPet) {
         return response.status(500).json({
@@ -60,6 +62,7 @@ router.put('/api/pets/:id', authenticateToken, async (request, response) => {
         foto,
         caracteristicas,
     } = request.body;
+    const user = await userService.getUserByEmail(request.user.email)
 
     if (!nome || !porte) {
         return response.status(400).json({ 
@@ -70,7 +73,7 @@ router.put('/api/pets/:id', authenticateToken, async (request, response) => {
     try {
         const updates = { nome, raca, idade, porte, foto, caracteristicas };
 
-        const pet = await petService.updatePet(id, request.user, updates);
+        const pet = await petService.updatePet(id, user, updates);
 
         const result = {
             message: pet.message,
@@ -95,8 +98,9 @@ router.delete('/api/pets/:id', authenticateToken, async (request, response) => {
     try {
         const petId = request.params.id;
         const userAuth = request.user;
+        const user = await userService.getUserByEmail(userAuth.email)
 
-        const result = await petService.deletePet(petId, userAuth);
+        const result = await petService.deletePet(petId, user);
 
         return response.status(result.status).json({
             message: result.message,

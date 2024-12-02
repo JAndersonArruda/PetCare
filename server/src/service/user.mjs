@@ -1,5 +1,8 @@
 import bcrypt from "bcrypt";
+import { pet as petModel } from "../models/index.mjs";
+import Pet from '../service/pet.mjs';
 
+const petService = new Pet(petModel);
 
 class User {
     constructor(userModel) {
@@ -101,6 +104,35 @@ class User {
         } catch (error) {
             console.error('Erro ao buscar usuário:', error);
             throw error;
+        }
+    }
+
+    async deleteUser(userAuth) {
+        try {
+            const user = await this.getUserByEmail(userAuth.email);
+
+            if(!user) {
+                return { status: 404, message: "User não encontrado." };
+            }
+    
+            const petsDeletados = await petService.deletePets(user);
+            if (petsDeletados.error) {
+                return { status: petsDeletados.status, message: petsDeletados.message, error: petsDeletados.error };
+            }
+
+            await user.destroy();
+    
+            return {
+                status: 200,
+                message: "Usuário e seus pets deletados com sucesso.",
+            };
+        } catch (error) {
+            console.error("Erro ao deletar pet:", error);
+            return {
+                status: 500,
+                message: "Erro ao deletar pet.",
+                error: error.message,
+            };
         }
     }
 

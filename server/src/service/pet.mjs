@@ -1,14 +1,12 @@
-import { user as userModel, pet as petModel } from "../models/index.mjs";
-import User from '../service/user.mjs';
+import { pet as petModel, DonoPet as DonoPetModel } from "../models/index.mjs";
 
-const userService = new User(userModel);
 
 class Pet {
     constructor(petModel) {
         this.Pet = petModel;
     }
 
-    async createPet(petDTO, userAuth) {
+    async createPet(petDTO, user) {
         const { nome, raca, idade, porte, foto, caracteristicas } = petDTO;
     
         if (!nome || !porte) {
@@ -25,7 +23,6 @@ class Pet {
                 caracteristicas,
             });
 
-            const user = await userService.getUserByEmail(userAuth.email);
             await user.addPet(newPet);
     
             return { status: 201, message: "Pet criado e associado com sucesso!", data: newPet };
@@ -73,21 +70,17 @@ class Pet {
     }
 
     async isOwner(petId, userId) {
-        const pet = await petModel.findOne({
-            include: {
-                model: userModel,
-                through: { attributes: [] },
-                where: { id: userId }
-            },
-            where: { id: petId }
+        const donoPet = await DonoPetModel.findOne({
+            where: {
+                petId: petId,
+                userId: userId
+            }
         });
-    
-        return !!pet;
+        return !!donoPet;
     }
 
-    async updatePet(petId, userAuth, updates) {
+    async updatePet(petId, user, updates) {
         try {
-            const user = await userService.getUserByEmail(userAuth.email);
             const isOwner = await this.isOwner(petId, user.id);
             if (!isOwner) {
                 return { status: 403, message: "Você não tem permissão para atualizar este pet." };
@@ -115,10 +108,9 @@ class Pet {
         }
     }
 
-    async deletePet(petId, userAuth) {
-        try {
-            const user = await userService.getUserByEmail(userAuth.email);
-    
+    async deletePet(petId, user) {
+        console.log(user);
+        try {  
             const isOwner = await this.isOwner(petId, user.id);
             if (!isOwner) {
                 return { status: 403, message: "Você não tem permissão para deletar este pet." };
@@ -143,7 +135,37 @@ class Pet {
                 error: error.message,
             };
         }
-    }    
+    }
+
+    async deletePets(user) {
+        try {
+            const pets = await user.getPets();
+    
+            if (pets.length === 0) {
+                return { status: 404, message: "Nenhum pet associado ao usuário." };
+            }
+    
+            await user.removePets(pets);
+    
+            await petModel.destroy({
+                where: {
+                    id: pets.map(pet => pet.id)
+                }
+            });
+    
+            return {
+                status: 200,
+                message: "Pets deletados com sucesso.",
+            };
+        } catch (error) {
+            console.error("Erro ao deletar pets:", error);
+            return {
+                status: 500,
+                message: "Erro ao deletar pets.",
+                error: error.message,
+            };
+        }    
+    }
 }
 
 

@@ -6,6 +6,7 @@ import vacinaModel from './vacina.mjs';
 import serviceModel from './service.mjs';
 import clinicaModel from './clinica.mjs';
 import avaliacaoModel from './avaliacao.mjs';
+import DonoPetModel from './DonoPet.mjs';
 
 const user = userModel(sequelize, DataTypes);
 const pet = petModel(sequelize, DataTypes);
@@ -13,18 +14,23 @@ const vacina = vacinaModel(sequelize, DataTypes);
 const service = serviceModel(sequelize, DataTypes);
 const clinica = clinicaModel(sequelize, DataTypes);
 const avaliacao = avaliacaoModel(sequelize, DataTypes);
+const DonoPet = DonoPetModel(sequelize, DataTypes);
 
 
 user.belongsToMany(pet, { 
-    through: 'DonoPet', 
-    onDelete: 'RESTRICT',
+    through: DonoPet,
+    foreignKey: 'userId',
+    otherKey: 'petId',
+    onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
 pet.belongsToMany(user, { 
-    through: 'DonoPet', 
-    onDelete: 'RESTRICT',
+    through: DonoPet,
+    foreignKey: 'petId',
+    otherKey: 'userId',
+    onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
- });
+});
 
 
-export {user, pet, vacina, service, clinica, avaliacao, sequelize};
+export {user, pet, vacina, service, clinica, avaliacao, DonoPet, sequelize};
