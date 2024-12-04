@@ -2,12 +2,12 @@ const DonoPet = (sequelize, DataTypes) => {
     const DonoPet = sequelize.define('DonoPet', {
         userId: {
             type: DataTypes.UUID,
-            allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         petId: {
             type: DataTypes.UUID,
-            allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         }    
     }, {
