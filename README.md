@@ -1,5 +1,5 @@
-![LM](./artifacts/petcare-logico-FN.png)
 ![ERD](./artifacts/petcare-ER.png)
+![LM](./artifacts/petcare-logico-FN.png)
 
 **Usuário** (<u>email</u>, nome, telefone, uf, cidade, rua, bairro, num, tipo) \
 **Especializações** (<u>emailProfissional</u>, <u>especialização</u>) \
