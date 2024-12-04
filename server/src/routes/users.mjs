@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { user } from "../models/index.mjs";
+import { user, pet as petModel } from "../models/index.mjs";
+import Pet from '../service/pet.mjs';
 import User from '../service/user.mjs';
 import dotenv from 'dotenv';
 import authenticateToken from "../utils/middlewares/authenticateToken.mjs";
@@ -11,6 +12,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 const router = Router();
 const userService = new User(user);
+const petService = new Pet(petModel);
 const authenticationService = new Authentication(user, SECRET_KEY)
 
 router.get("/api/users", async (request, response) => {
@@ -59,6 +61,12 @@ router.post("/api/login", async (request, response) => {
 router.delete('/api/users/', authenticateToken, async (request, response) => {
     try {
         const userAuth = request.user;
+        const user = userService.getUserByEmail(userAuth.email);
+
+        const petsDeletados = await petService.deletePets(user);
+        if (petsDeletados.error) {
+            return response.status(petsDeletados.status).json({ message: petsDeletados.message, error: petsDeletados.error });
+        }
 
         const result = await userService.deleteUser(userAuth);
 
@@ -66,8 +74,8 @@ router.delete('/api/users/', authenticateToken, async (request, response) => {
             message: result.message
         });
     } catch (error) {
-        console.error('Erro ao deletar pet:', error);
-        return response.status(500).json({ message: 'Erro ao deletar pet.', error: error.message });
+        console.error('Erro ao deletar user:', error);
+        return response.status(500).json({ message: 'Erro ao deletar user.', error: error.message });
     }
 });
 
@@ -92,7 +100,7 @@ router.delete('/api/users', authenticateToken, async(request, response) => {
 })
 
 router.put('/api/users/profile', authenticateToken, async(request, response) => {
-    const email = request.user.email;
+    const userAuth = request.user;
     const {
         nome,
         telefone,
@@ -108,7 +116,7 @@ router.put('/api/users/profile', authenticateToken, async(request, response) => 
     }
 
     try {
-        const result = await userService.updateUser(userEmail, {
+        const result = await userService.updateUser(userAuth, {
             nome,
             telefone,
             uf,

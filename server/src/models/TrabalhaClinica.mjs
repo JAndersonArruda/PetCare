@@ -1,20 +1,21 @@
-const DonoPet = (sequelize, DataTypes) => {
-    const DonoPet = sequelize.define('DonoPet', {
+const TrabalhaClinica = (sequelize, DataTypes) => {
+    const TrabalhaClinica = sequelize.define('TrabalhaClinica', {
         userId: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
-        petId: {
+        clinicaId: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         }    
     }, {
-        tableName: 'DonoPet'
+        tableName: 'TrabalhaClinica',
+        timestamps: false
     });
 
-    return DonoPet;
+    return TrabalhaClinica;
 };
 
-export default DonoPet;
+export default TrabalhaClinica;

@@ -1,8 +1,8 @@
 const vacina = (sequelize, DataTypes) => {
     const Vacina = sequelize.define('Vacina', {
         id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         nome: {

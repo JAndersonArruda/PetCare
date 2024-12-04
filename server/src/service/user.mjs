@@ -1,8 +1,5 @@
 import bcrypt from "bcrypt";
-import { pet as petModel } from "../models/index.mjs";
-import Pet from '../service/pet.mjs';
 
-const petService = new Pet(petModel);
 
 class User {
     constructor(userModel) {
@@ -114,11 +111,6 @@ class User {
             if(!user) {
                 return { status: 404, message: "User não encontrado." };
             }
-    
-            const petsDeletados = await petService.deletePets(user);
-            if (petsDeletados.error) {
-                return { status: petsDeletados.status, message: petsDeletados.message, error: petsDeletados.error };
-            }
 
             await user.destroy();
     
@@ -170,9 +162,9 @@ class User {
         }
     }
 
-    async updateUser(email, updates) {
+    async updateUser(userAuth, updates) {
         try {
-            const usuario = await this.user.findOne({ where: { email } });
+            const usuario = await this.getUserByEmail(userAuth.email);
 
             if (!usuario) {
                 return { status: 404, message: "Usuário não encontrado." };

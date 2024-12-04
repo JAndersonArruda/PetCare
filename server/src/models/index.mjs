@@ -2,19 +2,15 @@ import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../config/sequelize.mjs'
 import userModel from './user.mjs';
 import petModel from './pet.mjs';
-import vacinaModel from './vacina.mjs';
-import serviceModel from './service.mjs';
 import clinicaModel from './clinica.mjs';
-import avaliacaoModel from './avaliacao.mjs';
 import DonoPetModel from './DonoPet.mjs';
+import TrabalhaClinicaModel from './TrabalhaClinica.mjs';
 
 const user = userModel(sequelize, DataTypes);
 const pet = petModel(sequelize, DataTypes);
-const vacina = vacinaModel(sequelize, DataTypes);
-const service = serviceModel(sequelize, DataTypes);
 const clinica = clinicaModel(sequelize, DataTypes);
-const avaliacao = avaliacaoModel(sequelize, DataTypes);
 const DonoPet = DonoPetModel(sequelize, DataTypes);
+const TrabalhaClinica = TrabalhaClinicaModel(sequelize, DataTypes);
 
 
 user.belongsToMany(pet, { 
@@ -24,6 +20,7 @@ user.belongsToMany(pet, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
+
 pet.belongsToMany(user, { 
     through: DonoPet,
     foreignKey: 'petId',
@@ -33,4 +30,21 @@ pet.belongsToMany(user, {
 });
 
 
-export {user, pet, vacina, service, clinica, avaliacao, DonoPet, sequelize};
+user.belongsToMany(clinica, {
+    through: TrabalhaClinica,
+    foreignKey: 'userId',
+    otherKey: 'clinicaId',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+})
+
+clinica.belongsToMany(user, {
+    through: TrabalhaClinica,
+    foreignKey: 'clinicaId',
+    otherKey: 'userId',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+})
+
+
+export {user, pet, clinica, DonoPet, sequelize};
