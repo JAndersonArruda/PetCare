@@ -9,10 +9,6 @@ class Clinica {
         if (!nome || !telefone) {
             return { status: 400, message: "Nome e telefone são obrigatórios." };
         }
-
-        if (user.tipo != "Profissional") {
-            return { status: 400, message: "Seu usuário não tem permissão!" };
-        }
     
         try {
             const newClinica = await this.clinica.create(clinicaDTO);
@@ -21,12 +17,10 @@ class Clinica {
     
             return { 
                 status: 201, 
-                message: `Clinica criado e associado ao usuário ${user.nome} com sucesso!`, 
+                message: `Clínica ${newClinica.nome} criada e associada ao usuário ${user.nome} com sucesso!`, 
                 data: newClinica 
             };
-        } catch (error) {
-            console.error("Erro ao adicionar clinica:", error);
-    
+        } catch (error) {    
             if (error.name === "SequelizeValidationError") {
                 return {
                     status: 400,
@@ -36,6 +30,43 @@ class Clinica {
             }
     
             return { status: 500, message: "Erro interno ao adicionar clinica.", error: error.message };
+        }
+    }
+
+    async deleteClinica(clinicaId, user) {
+        console.log(user);
+        try {
+            const clinica = await this.clinica.findOne({ where: { id: clinicaId } });
+            console.log(clinica)
+
+            if (!clinica) {
+                return {
+                    status: 404,
+                    message: "Clinica não encontrada!"
+                };
+            }
+
+            await user.removeClinica(clinica);
+            await clinica.destroy();
+
+            return {
+                status: 200,
+                message: `Clínica ${clinica.nome} deletada com sucesso!`
+            }
+        } catch(error) {
+            if (error.name === "SequelizeDatabaseError") {
+                return {
+                    status: 500,
+                    message: "Erro ao acessar o banco de dados ao tentar deletar a clínica.",
+                    error: error.message,
+                };
+            }
+
+            return { 
+                status: 500, 
+                message: "Erro interno ao deletar clínica.", 
+                error: error.message 
+            };
         }
     }
 }
