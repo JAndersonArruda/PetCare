@@ -4,10 +4,28 @@ import Clinica from "../service/clinica.mjs";
 import authenticateToken from "../utils/middlewares/authenticateToken.mjs";
 import typeUser from "../utils/middlewares/typeUser.mjs";
 import User from "../service/user.mjs";
+import verifyOwnership from "../utils/middlewares/verifyOwnership.mjs";
 
 const router = Router();
 const clinicaService = new Clinica(clinica);
 const userService = new User(user);
+
+
+router.get("/api/clinicas", async (request, response) => {
+    const clinicas = await clinicaService.getAllClinicas();
+    
+    if (clinicas.error) {
+        return response.status(clinicas.status).json({
+            message: clinicas.message,
+            error: clinicas.error,
+        });
+    }
+
+    return response.status(clinicas.status).json({
+        message: clinicas.message,
+        data: clinicas.data,
+    });
+})
 
 router.post('/api/clinicas', authenticateToken, typeUser("Profissional"), async(request, response) => {
     const user = await userService.getUserByEmail(request.user.email);
@@ -26,7 +44,7 @@ router.post('/api/clinicas', authenticateToken, typeUser("Profissional"), async(
     });
 });
 
-router.delete("/api/clinicas/:id", authenticateToken, typeUser("Profissional"), async(request, response) => {
+router.delete("/api/clinicas/:id", authenticateToken, typeUser("Profissional"), verifyOwnership(clinicaService), async(request, response) => {
     const user = await userService.getUserByEmail(request.user.email);
     const clinicaId = request.params.id;
 

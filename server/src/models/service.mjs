@@ -9,10 +9,6 @@ const service = (sequelize, DataTypes) => {
             type: DataTypes.ENUM('Consulta', 'Vacinação', 'Exame', 'Outros'),
             allowNull: false,
         },
-        data: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
         observacoes: {
             type: DataTypes.TEXT,
             allowNull: true,
