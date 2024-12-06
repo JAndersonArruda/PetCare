@@ -1,3 +1,5 @@
+![UCD](./artifacts/petCare-UCD.png)
+![CD](./artifacts/petCare-CD.png)
 ![ERD](./artifacts/petcare-ER.png)
 ![LM](./artifacts/petcare-logico-FN.png)
 
