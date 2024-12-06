@@ -4,7 +4,7 @@ import Pet from '../service/pet.mjs';
 import User from '../service/user.mjs';
 import dotenv from 'dotenv';
 import authenticateToken from "../utils/middlewares/authenticateToken.mjs";
-import Authentication from "../service/Authentication.mjs";
+import Authentication from "../service/authentication.mjs";
 
 
 dotenv.config();
