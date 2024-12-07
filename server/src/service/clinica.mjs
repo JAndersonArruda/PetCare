@@ -24,7 +24,6 @@ class Clinica {
             throw new Error("Erro ao buscar ownerId.");
         }
     }
-    
 
     async getElementById(clinicaId) {
         try {

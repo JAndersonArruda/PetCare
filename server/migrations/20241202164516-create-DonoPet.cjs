@@ -3,7 +3,6 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Criação da tabela 'DonoPet'
     await queryInterface.createTable('DonoPet', {
       userId: {
         type: Sequelize.UUID,
@@ -12,6 +11,7 @@ module.exports = {
           key: 'id',
         },
         allowNull: false,
+        primaryKey: true,
         onDelete: 'CASCADE',
       },
       petId: {
@@ -21,22 +21,11 @@ module.exports = {
           key: 'id',
         },
         allowNull: false,
+        primaryKey: true,
         onDelete: 'CASCADE',
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-
-    await queryInterface.addConstraint('DonoPet', {
-      fields: ['userId', 'petId'],
-      type: 'primary key',
-      name: 'primary_key_user_pet',
+      }
+    }, {
+      timestamps: false
     });
   },
 

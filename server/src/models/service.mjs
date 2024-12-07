@@ -13,6 +13,15 @@ const service = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        clinicaId: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            references: {
+                model: 'clinicas',
+                key: 'id',
+            },
+        },
     }, {
         tableName: 'services',
         timestamps: false,

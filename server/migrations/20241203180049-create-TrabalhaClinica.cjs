@@ -10,6 +10,7 @@ module.exports = {
           model: 'users',
           key: 'id',
         },
+        primaryKey: true,
         allowNull: false,
         onDelete: 'CASCADE',
       },
@@ -20,16 +21,11 @@ module.exports = {
           key: 'id',
         },
         allowNull: false,
+        primaryKey: true,
         onDelete: 'CASCADE',
       },
     }, {
       timestamps: false
-    });
-
-    await queryInterface.addConstraint('TrabalhaClinica', {
-      fields: ['userId', 'clinicaId'],
-      type: 'primary key',
-      name: 'primary_key_user_clinica',
     });
   },
 

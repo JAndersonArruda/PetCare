@@ -3,13 +3,21 @@ const TrabalhaClinica = (sequelize, DataTypes) => {
         userId: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
+            references: {
+                model: 'users',
+                key: 'id',
+            },
             primaryKey: true,
         },
         clinicaId: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
+            references: {
+                model: 'clinicas',
+                key: 'id',
+            },
             primaryKey: true,
-        }    
+        }
     }, {
         tableName: 'TrabalhaClinica',
         timestamps: false
