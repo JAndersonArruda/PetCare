@@ -15,7 +15,6 @@ const clinica = (sequelize, DataTypes) => {
         },
     }, {
         tableName: 'clinicas',
-        timestamps: false,
     });
 
     return Clinica;

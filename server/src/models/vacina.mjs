@@ -6,20 +6,29 @@ const vacina = (sequelize, DataTypes) => {
             primaryKey: true,
         },
         nome: {
-            type: DataTypes.STRING(100),
-            allowNull: false,
-        },
-        dtAplicacao: {
-            type: DataTypes.DATE,
+            type: DataTypes.STRING,
             allowNull: false,
         },
         validade: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        observacoes: {
-            type: DataTypes.TEXT,
-            allowNull: true,
+        fabricante: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        lote: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        serviceId: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            references: {
+                model: 'services',
+                key: 'id',
+            },
         },
     }, {
         tableName: 'vacinas',

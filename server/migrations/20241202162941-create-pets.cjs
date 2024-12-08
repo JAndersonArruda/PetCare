@@ -7,15 +7,11 @@ module.exports = {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
-        allowNull: false,
         primaryKey: true,
       },
       nome: {
         type: Sequelize.STRING(100),
         allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
       },
       raca: {
         type: Sequelize.STRING(25),
@@ -24,9 +20,6 @@ module.exports = {
       idade: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        validate: {
-          min: 0,
-        },
       },
       porte: {
         type: Sequelize.ENUM('pequeno', 'medio', 'grande'),
